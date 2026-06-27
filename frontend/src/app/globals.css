@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 html {
-  font-size: 125% !important; /* Globally scale up all typography and spacing using rem */
+  font-size: 100%;
 }
 
 :root {
@@ -52,12 +52,14 @@ body {
 .gradient-text {
   background: linear-gradient(135deg, #ffffff 30%, #a7f3d0 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .gradient-green-gold {
   background: linear-gradient(135deg, #10b981 0%, #eab308 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
