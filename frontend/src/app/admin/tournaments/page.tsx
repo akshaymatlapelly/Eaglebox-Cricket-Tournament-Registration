@@ -95,23 +95,32 @@ function TournamentsManagerContent() {
       players_per_team: parseInt(playersPerTeam) || 11
     };
 
-    if (editingTourney) {
-      // Edit mode
-      await editTournament(editingTourney.id, payload);
-      showToast('Success', `Tournament "${name}" edited successfully.`, 'success');
-    } else {
-      // Add mode
-      await addTournament(payload);
-      showToast('Success', `Tournament "${name}" added successfully.`, 'success');
+    try {
+      if (editingTourney) {
+        // Edit mode
+        await editTournament(editingTourney.id, payload);
+        showToast('Success', `Tournament "${name}" edited successfully.`, 'success');
+      } else {
+        // Add mode
+        await addTournament(payload);
+        showToast('Success', `Tournament "${name}" added successfully.`, 'success');
+      }
+      setIsModalOpen(false);
+    } catch (err: any) {
+      console.error(err);
+      showToast('Database Error', err.message || 'Failed to save tournament to database.', 'error');
     }
-
-    setIsModalOpen(false);
   };
 
   const handleDelete = async (id: string, tournamentName: string) => {
     if (confirm(`Are you sure you want to delete "${tournamentName}"?`)) {
-      await deleteTournament(id);
-      showToast('Deleted', `Tournament "${tournamentName}" was removed.`, 'success');
+      try {
+        await deleteTournament(id);
+        showToast('Deleted', `Tournament "${tournamentName}" was removed.`, 'success');
+      } catch (err: any) {
+        console.error(err);
+        showToast('Database Error', err.message || 'Failed to delete tournament.', 'error');
+      }
     }
   };
 

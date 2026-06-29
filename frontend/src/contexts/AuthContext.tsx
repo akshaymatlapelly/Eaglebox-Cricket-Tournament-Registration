@@ -42,202 +42,181 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Seed passwords for initial users if not set
-    const storedPasswords = JSON.parse(localStorage.getItem('crickethub_passwords') || '{}');
-    let changed = false;
-    const defaultSeeds = ['virat@crickethub.com', 'rohit@crickethub.com', 'jasprit@crickethub.com'];
-    defaultSeeds.forEach(email => {
-      if (!storedPasswords[email]) {
-        storedPasswords[email] = 'player123';
-        changed = true;
+    // Listen to Supabase auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        // Fetch profile from Supabase profiles table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .maybeSingle();
+        
+        if (profile) {
+          setUser(profile);
+          localStorage.setItem('crickethub_session', JSON.stringify(profile));
+        } else {
+          // If profile is not found yet, create one (safety fallback)
+          const newProf: Profile = {
+            id: session.user.id,
+            name: session.user.user_metadata?.name || 'New Cricketer',
+            email: session.user.email || '',
+            phone: session.user.user_metadata?.phone || '',
+            role: (session.user.email === 'admin@crickethub.com' ? 'admin' : 'player') as any,
+            created_at: new Date().toISOString()
+          };
+          setUser(newProf);
+          localStorage.setItem('crickethub_session', JSON.stringify(newProf));
+        }
+      } else {
+        setUser(null);
+        localStorage.removeItem('crickethub_session');
       }
-    });
-    if (!storedPasswords['admin@crickethub.com']) {
-      storedPasswords['admin@crickethub.com'] = 'admin123';
-      changed = true;
-    }
-    if (changed) {
-      localStorage.setItem('crickethub_passwords', JSON.stringify(storedPasswords));
-    }
-
-    setTimeout(() => {
       setIsLoading(false);
-    }, 0);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, pass: string) => {
     setIsLoading(true);
     const lowerEmail = email.toLowerCase();
 
-    // 1. Admin login check
-    if (lowerEmail === 'admin@crickethub.com') {
-      if (pass === 'admin123') {
-        const adminUser: Profile = {
-          id: 'd1000000-0000-0000-0000-000000000009',
-          name: 'Hub Admin',
-          email: 'admin@crickethub.com',
-          role: 'admin',
-          created_at: new Date().toISOString()
-        };
-        setUser(adminUser);
-        localStorage.setItem('crickethub_session', JSON.stringify(adminUser));
-        
-        // Sync admin profile
-        try {
-          await supabase.from('profiles').upsert({
-            id: adminUser.id,
-            name: adminUser.name,
-            email: adminUser.email,
-            role: adminUser.role,
-            created_at: adminUser.created_at
+    try {
+      // 1. Try to sign in via Supabase Auth
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: lowerEmail,
+        password: pass
+      });
+
+      if (error) {
+        // 2. If it's the admin and user is not found, try to auto-signup the admin
+        if (lowerEmail === 'admin@crickethub.com' && error.message.includes('Invalid login credentials')) {
+          const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
+            email: lowerEmail,
+            password: pass,
+            options: {
+              data: {
+                name: 'Hub Admin'
+              }
+            }
           });
-        } catch (err) {
-          console.error('Failed to sync admin profile to Supabase', err);
+
+          if (signUpErr) {
+            setIsLoading(false);
+            return { success: false, error: signUpErr.message };
+          }
+
+          if (signUpData.user) {
+            // Update role to admin in profiles table
+            await new Promise(resolve => setTimeout(resolve, 800)); // Wait for trigger hook
+            await supabase.from('profiles').update({ role: 'admin' }).eq('id', signUpData.user.id);
+            
+            // Retry sign in
+            const { data: retryData, error: retryErr } = await supabase.auth.signInWithPassword({
+              email: lowerEmail,
+              password: pass
+            });
+            if (retryErr) {
+              setIsLoading(false);
+              return { success: false, error: retryErr.message };
+            }
+            setIsLoading(false);
+            return { success: true };
+          }
         }
-
         setIsLoading(false);
-        return { success: true };
-      } else {
-        setIsLoading(false);
-        return { success: false, error: 'Invalid administrative credentials.' };
+        return { success: false, error: error.message };
       }
-    }
 
-    // 2. Mock profiles search
-    const found = profiles.find(p => p.email.toLowerCase() === lowerEmail);
-    if (!found) {
+      // 3. Make sure admin role is synchronized in Supabase profiles
+      if (lowerEmail === 'admin@crickethub.com' && data.user) {
+        await supabase.from('profiles').update({ role: 'admin' }).eq('id', data.user.id);
+      }
+
       setIsLoading(false);
-      return { success: false, error: 'Account not found. Please sign up first.' };
-    }
-
-    // 3. Verify password
-    const storedPasswords = JSON.parse(localStorage.getItem('crickethub_passwords') || '{}');
-    const existingPass = storedPasswords[lowerEmail];
-    
-    if (existingPass && existingPass !== pass) {
+      return { success: true };
+    } catch (err: any) {
       setIsLoading(false);
-      return { success: false, error: 'Incorrect email or password.' };
+      return { success: false, error: err.message || 'Login failed.' };
     }
-
-    setUser(found);
-    localStorage.setItem('crickethub_session', JSON.stringify(found));
-    setIsLoading(false);
-    return { success: true };
   };
 
   const signup = async (name: string, email: string, phone: string, pass: string) => {
     setIsLoading(true);
-    const newPlayer: Profile = {
-      id: generateUUID(),
-      name,
-      email,
-      phone,
-      role: 'player',
-      created_at: new Date().toISOString()
-    };
-
-    setUser(newPlayer);
-    localStorage.setItem('crickethub_session', JSON.stringify(newPlayer));
-
-    // Save profile to db context state
-    const storedProfiles = JSON.parse(localStorage.getItem('crickethub_profiles') || '[]');
-    if (!storedProfiles.some((p: Profile) => p.email === email)) {
-      storedProfiles.push(newPlayer);
-      localStorage.setItem('crickethub_profiles', JSON.stringify(storedProfiles));
-    }
-    
-    // Save credentials password
-    const storedPasswords = JSON.parse(localStorage.getItem('crickethub_passwords') || '{}');
-    storedPasswords[email.toLowerCase()] = pass;
-    localStorage.setItem('crickethub_passwords', JSON.stringify(storedPasswords));
-    
-    // Create base stats
-    const storedStats = JSON.parse(localStorage.getItem('crickethub_playerStats') || '[]');
-    if (!storedStats.some((s: PlayerStats) => s.player_id === newPlayer.id)) {
-      storedStats.push({
-        id: generateUUID(),
-        player_id: newPlayer.id,
-        matches_played: 0,
-        runs: 0,
-        wickets: 0,
-        highest_score: 0,
-        best_bowling_figures: '0/0',
-        batting_average: 0,
-        bowling_economy: 0,
-        win_percentage: 0
-      });
-      localStorage.setItem('crickethub_playerStats', JSON.stringify(storedStats));
-    }
-
-    // Sync to Supabase
     try {
-      await supabase.from('profiles').insert({
-        id: newPlayer.id,
-        name: newPlayer.name,
-        email: newPlayer.email,
-        phone: newPlayer.phone,
-        role: newPlayer.role,
-        created_at: newPlayer.created_at
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password: pass,
+        options: {
+          data: {
+            name,
+            phone
+          }
+        }
       });
 
-      await supabase.from('player_stats').insert({
-        id: generateUUID(),
-        player_id: newPlayer.id,
-        matches_played: 0,
-        runs: 0,
-        wickets: 0,
-        highest_score: 0,
-        best_bowling_figures: '0/0',
-        batting_average: 0,
-        bowling_economy: 0,
-        win_percentage: 0
-      });
-    } catch (err) {
-      console.error('Failed to sync signup to Supabase', err);
+      if (error) {
+        setIsLoading(false);
+        return { success: false, error: error.message };
+      }
+
+      if (data.user) {
+        // Wait for trigger to create the profile, then update phone just in case
+        await new Promise(resolve => setTimeout(resolve, 800));
+        await supabase.from('profiles').update({ phone }).eq('id', data.user.id);
+      }
+
+      setIsLoading(false);
+      return { success: true };
+    } catch (err: any) {
+      setIsLoading(false);
+      return { success: false, error: err.message || 'Signup failed.' };
     }
-
-    setIsLoading(false);
-    return { success: true };
   };
 
   const logout = async () => {
+    setIsLoading(true);
+    await supabase.auth.signOut();
     setUser(null);
     localStorage.removeItem('crickethub_session');
+    setIsLoading(false);
   };
 
   const updateProfile = async (name: string, phone: string, gender?: string, avatarUrl?: string) => {
     if (!user) return false;
-    const updated = {
-      ...user,
-      name,
-      phone,
-      gender,
-      avatar_url: avatarUrl || user.avatar_url
-    };
-    setUser(updated);
-    localStorage.setItem('crickethub_session', JSON.stringify(updated));
-
-    // Update in profiles db
-    const storedProfiles = JSON.parse(localStorage.getItem('crickethub_profiles') || '[]');
-    const newProfiles = storedProfiles.map((p: Profile) => p.id === user.id ? updated : p);
-    localStorage.setItem('crickethub_profiles', JSON.stringify(newProfiles));
-
-    // Sync to Supabase
     try {
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({
-          name: updated.name,
-          phone: updated.phone,
-          gender: updated.gender,
-          avatar_url: updated.avatar_url
+          name,
+          phone,
+          gender,
+          avatar_url: avatarUrl || user.avatar_url
         })
         .eq('id', user.id);
-    } catch (err) {
-      console.error('Failed to sync updateProfile to Supabase', err);
-    }
 
-    return true;
+      if (error) {
+        console.error('Failed to sync updateProfile to Supabase', error);
+        return false;
+      }
+
+      const updated = {
+        ...user,
+        name,
+        phone,
+        gender,
+        avatar_url: avatarUrl || user.avatar_url
+      };
+      setUser(updated);
+      localStorage.setItem('crickethub_session', JSON.stringify(updated));
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
   };
 
   const isAdmin = user?.role === 'admin' || user?.email === 'admin@crickethub.com';
@@ -262,3 +241,4 @@ export const useAuth = () => {
   if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
+

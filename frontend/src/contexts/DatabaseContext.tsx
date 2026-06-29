@@ -501,157 +501,159 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       try {
         // 1. Profiles
         const { data: dbProfiles, error: pErr } = await supabase.from('profiles').select('*');
-        if (!pErr && dbProfiles && dbProfiles.length > 0) {
+        if (pErr) throw pErr;
+        if (dbProfiles && dbProfiles.length > 0) {
           setProfiles(dbProfiles);
           saveToStorage('profiles', dbProfiles);
         } else {
           const { error: seedPErr } = await supabase.from('profiles').upsert(INITIAL_PROFILES);
-          if (!seedPErr) {
-            setProfiles(INITIAL_PROFILES);
-            saveToStorage('profiles', INITIAL_PROFILES);
-          }
+          if (seedPErr) throw seedPErr;
+          setProfiles(INITIAL_PROFILES);
+          saveToStorage('profiles', INITIAL_PROFILES);
         }
 
         // 2. Tournaments
         const { data: dbTourneys, error: tErr } = await supabase.from('tournaments').select('*');
-        if (!tErr && dbTourneys && dbTourneys.length > 0) {
+        if (tErr) throw tErr;
+        if (dbTourneys && dbTourneys.length > 0) {
           setTournaments(dbTourneys);
           saveToStorage('tournaments', dbTourneys);
         } else {
           const { error: seedTErr } = await supabase.from('tournaments').upsert(INITIAL_TOURNAMENTS);
-          if (!seedTErr) {
-            setTournaments(INITIAL_TOURNAMENTS);
-            saveToStorage('tournaments', INITIAL_TOURNAMENTS);
-          }
+          if (seedTErr) throw seedTErr;
+          setTournaments(INITIAL_TOURNAMENTS);
+          saveToStorage('tournaments', INITIAL_TOURNAMENTS);
         }
 
         // 3. Teams
         const { data: dbTeams, error: tmErr } = await supabase.from('teams').select('*');
-        if (!tmErr && dbTeams && dbTeams.length > 0) {
+        if (tmErr) throw tmErr;
+        if (dbTeams && dbTeams.length > 0) {
           setTeams(dbTeams);
           saveToStorage('teams', dbTeams);
         } else {
           const { error: seedTmErr } = await supabase.from('teams').upsert(INITIAL_TEAMS);
-          if (!seedTmErr) {
-            setTeams(INITIAL_TEAMS);
-            saveToStorage('teams', INITIAL_TEAMS);
-          }
+          if (seedTmErr) throw seedTmErr;
+          setTeams(INITIAL_TEAMS);
+          saveToStorage('teams', INITIAL_TEAMS);
         }
 
         // 4. Team Members
         const { data: dbMembers, error: memErr } = await supabase.from('team_members').select('*');
-        if (!memErr && dbMembers && dbMembers.length > 0) {
+        if (memErr) throw memErr;
+        if (dbMembers && dbMembers.length > 0) {
           setTeamMembers(dbMembers);
           saveToStorage('teamMembers', dbMembers);
         } else {
           const { error: seedMemErr } = await supabase.from('team_members').upsert(INITIAL_TEAM_MEMBERS);
-          if (!seedMemErr) {
-            setTeamMembers(INITIAL_TEAM_MEMBERS);
-            saveToStorage('teamMembers', INITIAL_TEAM_MEMBERS);
-          }
+          if (seedMemErr) throw seedMemErr;
+          setTeamMembers(INITIAL_TEAM_MEMBERS);
+          saveToStorage('teamMembers', INITIAL_TEAM_MEMBERS);
         }
 
         // 5. Registrations
         const { data: dbRegs, error: rErr } = await supabase.from('registrations').select('*');
-        if (!rErr && dbRegs && dbRegs.length > 0) {
+        if (rErr) throw rErr;
+        if (dbRegs && dbRegs.length > 0) {
           setRegistrations(dbRegs);
           saveToStorage('registrations', dbRegs);
         } else {
           const { error: seedRErr } = await supabase.from('registrations').upsert(INITIAL_REGISTRATIONS);
-          if (!seedRErr) {
-            setRegistrations(INITIAL_REGISTRATIONS);
-            saveToStorage('registrations', INITIAL_REGISTRATIONS);
-          }
+          if (seedRErr) throw seedRErr;
+          setRegistrations(INITIAL_REGISTRATIONS);
+          saveToStorage('registrations', INITIAL_REGISTRATIONS);
         }
 
         // 6. Fixtures
         const { data: dbFixt, error: fErr } = await supabase.from('fixtures').select('*');
-        if (!fErr && dbFixt && dbFixt.length > 0) {
+        if (fErr) throw fErr;
+        if (dbFixt && dbFixt.length > 0) {
           setFixtures(dbFixt);
           saveToStorage('fixtures', dbFixt);
         } else {
           const { error: seedFErr } = await supabase.from('fixtures').upsert(INITIAL_FIXTURES);
-          if (!seedFErr) {
-            setFixtures(INITIAL_FIXTURES);
-            saveToStorage('fixtures', INITIAL_FIXTURES);
-          }
+          if (seedFErr) throw seedFErr;
+          setFixtures(INITIAL_FIXTURES);
+          saveToStorage('fixtures', INITIAL_FIXTURES);
         }
 
         // 7. Matches
         const { data: dbMatches, error: mErr } = await supabase.from('matches').select('*');
-        if (!mErr && dbMatches && dbMatches.length > 0) {
+        if (mErr) throw mErr;
+        if (dbMatches && dbMatches.length > 0) {
           setMatches(dbMatches);
           saveToStorage('matches', dbMatches);
         } else {
           const { error: seedMErr } = await supabase.from('matches').upsert(INITIAL_MATCHES);
-          if (!seedMErr) {
-            setMatches(INITIAL_MATCHES);
-            saveToStorage('matches', INITIAL_MATCHES);
-          }
+          if (seedMErr) throw seedMErr;
+          setMatches(INITIAL_MATCHES);
+          saveToStorage('matches', INITIAL_MATCHES);
         }
 
         // 8. Player Stats
         const { data: dbStats, error: sErr } = await supabase.from('player_stats').select('*');
-        if (!sErr && dbStats && dbStats.length > 0) {
+        if (sErr) throw sErr;
+        if (dbStats && dbStats.length > 0) {
           setPlayerStats(dbStats);
           saveToStorage('playerStats', dbStats);
         } else {
           const { error: seedSErr } = await supabase.from('player_stats').upsert(INITIAL_PLAYER_STATS);
-          if (!seedSErr) {
-            setPlayerStats(INITIAL_PLAYER_STATS);
-            saveToStorage('playerStats', INITIAL_PLAYER_STATS);
-          }
+          if (seedSErr) throw seedSErr;
+          setPlayerStats(INITIAL_PLAYER_STATS);
+          saveToStorage('playerStats', INITIAL_PLAYER_STATS);
         }
 
         // 9. User Badges
         const { data: dbUB, error: ubErr } = await supabase.from('user_badges').select('*');
-        if (!ubErr && dbUB && dbUB.length > 0) {
+        if (ubErr) throw ubErr;
+        if (dbUB && dbUB.length > 0) {
           setUserBadges(dbUB);
           saveToStorage('userBadges', dbUB);
         } else {
           const { error: seedUBErr } = await supabase.from('user_badges').upsert(INITIAL_USER_BADGES);
-          if (!seedUBErr) {
-            setUserBadges(INITIAL_USER_BADGES);
-            saveToStorage('userBadges', INITIAL_USER_BADGES);
-          }
+          if (seedUBErr) throw seedUBErr;
+          setUserBadges(INITIAL_USER_BADGES);
+          saveToStorage('userBadges', INITIAL_USER_BADGES);
         }
 
         // 10. Certificates
         const { data: dbCert, error: certErr } = await supabase.from('certificates').select('*');
-        if (!certErr && dbCert && dbCert.length > 0) {
+        if (certErr) throw certErr;
+        if (dbCert && dbCert.length > 0) {
           setCertificates(dbCert);
           saveToStorage('certificates', dbCert);
         } else {
           const { error: seedCertErr } = await supabase.from('certificates').upsert(INITIAL_CERTIFICATES);
-          if (!seedCertErr) {
-            setCertificates(INITIAL_CERTIFICATES);
-            saveToStorage('certificates', INITIAL_CERTIFICATES);
-          }
+          if (seedCertErr) throw seedCertErr;
+          setCertificates(INITIAL_CERTIFICATES);
+          saveToStorage('certificates', INITIAL_CERTIFICATES);
         }
 
         // 11. Payments
         const { data: dbPay, error: payErr } = await supabase.from('payments').select('*');
-        if (!payErr && dbPay) {
+        if (payErr) throw payErr;
+        if (dbPay) {
           setPayments(dbPay);
           saveToStorage('payments', dbPay);
         }
 
         // 12. QR Codes
         const { data: dbQR, error: qrErr } = await supabase.from('qr_codes').select('*');
-        if (!qrErr && dbQR && dbQR.length > 0) {
+        if (qrErr) throw qrErr;
+        if (dbQR && dbQR.length > 0) {
           setQrCodes(dbQR);
           saveToStorage('qrCodes', dbQR);
         } else {
           const { error: seedQRErr } = await supabase.from('qr_codes').upsert(INITIAL_QR);
-          if (!seedQRErr) {
-            setQrCodes(INITIAL_QR);
-            saveToStorage('qrCodes', INITIAL_QR);
-          }
+          if (seedQRErr) throw seedQRErr;
+          setQrCodes(INITIAL_QR);
+          saveToStorage('qrCodes', INITIAL_QR);
         }
 
         // 13. Notifications
         const { data: dbNotif, error: nErr } = await supabase.from('notifications').select('*');
-        if (!nErr && dbNotif && dbNotif.length > 0) {
+        if (nErr) throw nErr;
+        if (dbNotif && dbNotif.length > 0) {
           setNotifications(dbNotif);
           saveToStorage('notifications', dbNotif);
         } else {
@@ -659,15 +661,15 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             { id: generateUUID(), user_id: 'd1000000-0000-0000-0000-000000000001', title: 'Welcome Cricketer!', message: 'Explore tournaments, upgrade your membership, or check upcoming match fixtures.', is_read: false, created_at: new Date().toISOString() }
           ];
           const { error: seedNErr } = await supabase.from('notifications').upsert(initialNotif);
-          if (!seedNErr) {
-            setNotifications(initialNotif);
-            saveToStorage('notifications', initialNotif);
-          }
+          if (seedNErr) throw seedNErr;
+          setNotifications(initialNotif);
+          saveToStorage('notifications', initialNotif);
         }
 
         // 14. User Memberships
         const { data: dbUM, error: umErr } = await supabase.from('user_memberships').select('*');
-        if (!umErr && dbUM && dbUM.length > 0) {
+        if (umErr) throw umErr;
+        if (dbUM && dbUM.length > 0) {
           setUserMemberships(dbUM);
           saveToStorage('userMemberships', dbUM);
         } else {
@@ -675,10 +677,9 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             { id: '41000000-0000-0000-0000-000000000001', user_id: 'd1000000-0000-0000-0000-000000000001', membership_id: 'gold', status: 'active', created_at: new Date().toISOString() }
           ];
           const { error: seedUMErr } = await supabase.from('user_memberships').upsert(initialUM);
-          if (!seedUMErr) {
-            setUserMemberships(initialUM);
-            saveToStorage('userMemberships', initialUM);
-          }
+          if (seedUMErr) throw seedUMErr;
+          setUserMemberships(initialUM);
+          saveToStorage('userMemberships', initialUM);
         }
 
         // Helper to query local storage during init
@@ -695,63 +696,38 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         };
 
         // 15. Managed Top Players
-        try {
-          const { data: dbTopPlayers, error: tpErr } = await supabase.from('managed_top_players').select('*');
-          if (!tpErr && dbTopPlayers && dbTopPlayers.length > 0) {
-            setManagedTopPlayers(dbTopPlayers);
-            saveToStorage('managedTopPlayers', dbTopPlayers);
-          } else {
-            const { error: seedTpErr } = await supabase.from('managed_top_players').upsert(INITIAL_MANAGED_TOP_PLAYERS);
-            if (!seedTpErr) {
-              setManagedTopPlayers(INITIAL_MANAGED_TOP_PLAYERS);
-              saveToStorage('managedTopPlayers', INITIAL_MANAGED_TOP_PLAYERS);
-            } else {
-              const fallback = getLocalStorageItem('managedTopPlayers', INITIAL_MANAGED_TOP_PLAYERS);
-              setManagedTopPlayers(fallback);
-              saveToStorage('managedTopPlayers', fallback);
-            }
-          }
-        } catch (e) {
-          const fallback = getLocalStorageItem('managedTopPlayers', INITIAL_MANAGED_TOP_PLAYERS);
-          setManagedTopPlayers(fallback);
-          saveToStorage('managedTopPlayers', fallback);
+        const { data: dbTopPlayers, error: tpErr } = await supabase.from('managed_top_players').select('*');
+        if (tpErr) throw tpErr;
+        if (dbTopPlayers && dbTopPlayers.length > 0) {
+          setManagedTopPlayers(dbTopPlayers);
+          saveToStorage('managedTopPlayers', dbTopPlayers);
+        } else {
+          const { error: seedTpErr } = await supabase.from('managed_top_players').upsert(INITIAL_MANAGED_TOP_PLAYERS);
+          if (seedTpErr) throw seedTpErr;
+          setManagedTopPlayers(INITIAL_MANAGED_TOP_PLAYERS);
+          saveToStorage('managedTopPlayers', INITIAL_MANAGED_TOP_PLAYERS);
         }
 
         // 16. Wall of Frame Items
-        try {
-          const { data: dbWof, error: wofErr } = await supabase.from('wall_of_frame_items').select('*');
-          if (!wofErr && dbWof && dbWof.length > 0) {
-            setWallOfFrameItems(dbWof);
-            saveToStorage('wallOfFrameItems', dbWof);
-          } else {
-            const { error: seedWofErr } = await supabase.from('wall_of_frame_items').upsert(INITIAL_WALL_OF_FRAME_ITEMS);
-            if (!seedWofErr) {
-              setWallOfFrameItems(INITIAL_WALL_OF_FRAME_ITEMS);
-              saveToStorage('wallOfFrameItems', INITIAL_WALL_OF_FRAME_ITEMS);
-            } else {
-              const fallback = getLocalStorageItem('wallOfFrameItems', INITIAL_WALL_OF_FRAME_ITEMS);
-              setWallOfFrameItems(fallback);
-              saveToStorage('wallOfFrameItems', fallback);
-            }
-          }
-        } catch (e) {
-          const fallback = getLocalStorageItem('wallOfFrameItems', INITIAL_WALL_OF_FRAME_ITEMS);
-          setWallOfFrameItems(fallback);
-          saveToStorage('wallOfFrameItems', fallback);
+        const { data: dbWof, error: wofErr } = await supabase.from('wall_of_frame_items').select('*');
+        if (wofErr) throw wofErr;
+        if (dbWof && dbWof.length > 0) {
+          setWallOfFrameItems(dbWof);
+          saveToStorage('wallOfFrameItems', dbWof);
+        } else {
+          const { error: seedWofErr } = await supabase.from('wall_of_frame_items').upsert(INITIAL_WALL_OF_FRAME_ITEMS);
+          if (seedWofErr) throw seedWofErr;
+          setWallOfFrameItems(INITIAL_WALL_OF_FRAME_ITEMS);
+          saveToStorage('wallOfFrameItems', INITIAL_WALL_OF_FRAME_ITEMS);
         }
 
         // 17. Match Performances
-        try {
-          const { data: dbPerformances, error: perfErr } = await supabase.from('match_performances').select('*');
-          if (!perfErr && dbPerformances && dbPerformances.length > 0) {
-            setMatchPerformances(dbPerformances);
-            saveToStorage('match_performances', dbPerformances);
-          } else {
-            const fallback = getLocalStorageItem('match_performances', []);
-            setMatchPerformances(fallback);
-            saveToStorage('match_performances', fallback);
-          }
-        } catch (e) {
+        const { data: dbPerformances, error: perfErr } = await supabase.from('match_performances').select('*');
+        if (perfErr) throw perfErr;
+        if (dbPerformances && dbPerformances.length > 0) {
+          setMatchPerformances(dbPerformances);
+          saveToStorage('match_performances', dbPerformances);
+        } else {
           const fallback = getLocalStorageItem('match_performances', []);
           setMatchPerformances(fallback);
           saveToStorage('match_performances', fallback);
