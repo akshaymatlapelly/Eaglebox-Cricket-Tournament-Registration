@@ -233,3 +233,20 @@ CREATE POLICY "Allow public read access to profiles" ON public.profiles
     FOR SELECT USING (true);
 CREATE POLICY "Allow users to update their own profile" ON public.profiles
     FOR UPDATE USING (auth.uid() = id OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- 5. Auto Confirm Sign-up Emails Trigger
+-- Automatically confirms the email of any new user signing up, bypassing verification.
+CREATE OR REPLACE FUNCTION public.auto_confirm_email()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.email_confirmed_at := NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_auto_confirm ON auth.users;
+CREATE TRIGGER on_auth_user_auto_confirm
+BEFORE INSERT ON auth.users
+FOR EACH ROW
+EXECUTE FUNCTION public.auto_confirm_email();
+
