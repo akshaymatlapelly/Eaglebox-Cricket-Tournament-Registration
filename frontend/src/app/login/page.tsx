@@ -35,6 +35,13 @@ function LoginContent() {
       return;
     }
 
+    // Email format validation regex (ensures a standard format like name@domain.com)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showToast('Invalid Email', 'Please enter a valid email address (e.g., name@domain.com).', 'error');
+      return;
+    }
+
     setIsLoading(true);
     if (isLogin) {
       const res = await login(email, password);
@@ -58,8 +65,13 @@ function LoginContent() {
       const res = await signup(name, email, phone, password);
       setIsLoading(false);
       if (res.success) {
-        showToast('Registration Success!', `Your profile is setup.`, 'success');
-        router.push('/dashboard');
+        if (res.emailConfirmationRequired) {
+          showToast('Verification Required', 'A verification email has been sent. Please confirm your email before signing in.', 'info');
+          setIsLogin(true); // Switch back to login form
+        } else {
+          showToast('Registration Success!', `Your profile is setup.`, 'success');
+          router.push('/dashboard');
+        }
       } else {
         showToast('Auth Failure', res.error || 'Failed to create profile.', 'error');
       }

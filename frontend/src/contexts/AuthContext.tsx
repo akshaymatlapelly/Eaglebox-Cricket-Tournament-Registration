@@ -17,7 +17,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isLoading: boolean;
   login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (name: string, email: string, phone: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (name: string, email: string, phone: string, pass: string) => Promise<{ success: boolean; error?: string; emailConfirmationRequired?: boolean }>;
   logout: () => Promise<void>;
   updateProfile: (name: string, phone: string, gender?: string, avatarUrl?: string) => Promise<boolean>;
 }
@@ -170,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       setIsLoading(false);
-      return { success: true };
+      return { success: true, emailConfirmationRequired: !data.session };
     } catch (err: any) {
       setIsLoading(false);
       return { success: false, error: err.message || 'Signup failed.' };
