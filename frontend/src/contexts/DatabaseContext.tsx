@@ -520,7 +520,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('tournaments', dbTourneys);
         } else {
           const { error: seedTErr } = await supabase.from('tournaments').upsert(INITIAL_TOURNAMENTS);
-          if (seedTErr) throw seedTErr;
+          if (seedTErr) console.warn('Failed to seed tournaments due to RLS, using local seeds:', seedTErr.message);
           setTournaments(INITIAL_TOURNAMENTS);
           saveToStorage('tournaments', INITIAL_TOURNAMENTS);
         }
@@ -533,7 +533,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('teams', dbTeams);
         } else {
           const { error: seedTmErr } = await supabase.from('teams').upsert(INITIAL_TEAMS);
-          if (seedTmErr) throw seedTmErr;
+          if (seedTmErr) console.warn('Failed to seed teams due to RLS, using local seeds:', seedTmErr.message);
           setTeams(INITIAL_TEAMS);
           saveToStorage('teams', INITIAL_TEAMS);
         }
@@ -546,7 +546,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('teamMembers', dbMembers);
         } else {
           const { error: seedMemErr } = await supabase.from('team_members').upsert(INITIAL_TEAM_MEMBERS);
-          if (seedMemErr) throw seedMemErr;
+          if (seedMemErr) console.warn('Failed to seed team members due to RLS, using local seeds:', seedMemErr.message);
           setTeamMembers(INITIAL_TEAM_MEMBERS);
           saveToStorage('teamMembers', INITIAL_TEAM_MEMBERS);
         }
@@ -559,7 +559,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('registrations', dbRegs);
         } else {
           const { error: seedRErr } = await supabase.from('registrations').upsert(INITIAL_REGISTRATIONS);
-          if (seedRErr) throw seedRErr;
+          if (seedRErr) console.warn('Failed to seed registrations due to RLS, using local seeds:', seedRErr.message);
           setRegistrations(INITIAL_REGISTRATIONS);
           saveToStorage('registrations', INITIAL_REGISTRATIONS);
         }
@@ -572,7 +572,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('fixtures', dbFixt);
         } else {
           const { error: seedFErr } = await supabase.from('fixtures').upsert(INITIAL_FIXTURES);
-          if (seedFErr) throw seedFErr;
+          if (seedFErr) console.warn('Failed to seed fixtures due to RLS, using local seeds:', seedFErr.message);
           setFixtures(INITIAL_FIXTURES);
           saveToStorage('fixtures', INITIAL_FIXTURES);
         }
@@ -585,7 +585,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('matches', dbMatches);
         } else {
           const { error: seedMErr } = await supabase.from('matches').upsert(INITIAL_MATCHES);
-          if (seedMErr) throw seedMErr;
+          if (seedMErr) console.warn('Failed to seed matches due to RLS, using local seeds:', seedMErr.message);
           setMatches(INITIAL_MATCHES);
           saveToStorage('matches', INITIAL_MATCHES);
         }
@@ -598,7 +598,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('playerStats', dbStats);
         } else {
           const { error: seedSErr } = await supabase.from('player_stats').upsert(INITIAL_PLAYER_STATS);
-          if (seedSErr) throw seedSErr;
+          if (seedSErr) console.warn('Failed to seed player_stats due to RLS, using local seeds:', seedSErr.message);
           setPlayerStats(INITIAL_PLAYER_STATS);
           saveToStorage('playerStats', INITIAL_PLAYER_STATS);
         }
@@ -611,7 +611,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('userBadges', dbUB);
         } else {
           const { error: seedUBErr } = await supabase.from('user_badges').upsert(INITIAL_USER_BADGES);
-          if (seedUBErr) throw seedUBErr;
+          if (seedUBErr) console.warn('Failed to seed user_badges due to RLS, using local seeds:', seedUBErr.message);
           setUserBadges(INITIAL_USER_BADGES);
           saveToStorage('userBadges', INITIAL_USER_BADGES);
         }
@@ -624,7 +624,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('certificates', dbCert);
         } else {
           const { error: seedCertErr } = await supabase.from('certificates').upsert(INITIAL_CERTIFICATES);
-          if (seedCertErr) throw seedCertErr;
+          if (seedCertErr) console.warn('Failed to seed certificates due to RLS, using local seeds:', seedCertErr.message);
           setCertificates(INITIAL_CERTIFICATES);
           saveToStorage('certificates', INITIAL_CERTIFICATES);
         }
@@ -645,7 +645,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('qrCodes', dbQR);
         } else {
           const { error: seedQRErr } = await supabase.from('qr_codes').upsert(INITIAL_QR);
-          if (seedQRErr) throw seedQRErr;
+          if (seedQRErr) console.warn('Failed to seed qr_codes due to RLS, using local seeds:', seedQRErr.message);
           setQrCodes(INITIAL_QR);
           saveToStorage('qrCodes', INITIAL_QR);
         }
@@ -661,7 +661,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             { id: generateUUID(), user_id: 'd1000000-0000-0000-0000-000000000001', title: 'Welcome Cricketer!', message: 'Explore tournaments, upgrade your membership, or check upcoming match fixtures.', is_read: false, created_at: new Date().toISOString() }
           ];
           const { error: seedNErr } = await supabase.from('notifications').upsert(initialNotif);
-          if (seedNErr) throw seedNErr;
+          if (seedNErr) console.warn('Failed to seed notifications due to RLS, using local seeds:', seedNErr.message);
           setNotifications(initialNotif);
           saveToStorage('notifications', initialNotif);
         }
@@ -677,7 +677,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             { id: '41000000-0000-0000-0000-000000000001', user_id: 'd1000000-0000-0000-0000-000000000001', membership_id: 'gold', status: 'active', created_at: new Date().toISOString() }
           ];
           const { error: seedUMErr } = await supabase.from('user_memberships').upsert(initialUM);
-          if (seedUMErr) throw seedUMErr;
+          if (seedUMErr) console.warn('Failed to seed user_memberships due to RLS, using local seeds:', seedUMErr.message);
           setUserMemberships(initialUM);
           saveToStorage('userMemberships', initialUM);
         }
@@ -703,7 +703,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('managedTopPlayers', dbTopPlayers);
         } else {
           const { error: seedTpErr } = await supabase.from('managed_top_players').upsert(INITIAL_MANAGED_TOP_PLAYERS);
-          if (seedTpErr) throw seedTpErr;
+          if (seedTpErr) console.warn('Failed to seed managed_top_players due to RLS, using local seeds:', seedTpErr.message);
           setManagedTopPlayers(INITIAL_MANAGED_TOP_PLAYERS);
           saveToStorage('managedTopPlayers', INITIAL_MANAGED_TOP_PLAYERS);
         }
@@ -716,7 +716,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('wallOfFrameItems', dbWof);
         } else {
           const { error: seedWofErr } = await supabase.from('wall_of_frame_items').upsert(INITIAL_WALL_OF_FRAME_ITEMS);
-          if (seedWofErr) throw seedWofErr;
+          if (seedWofErr) console.warn('Failed to seed wall_of_frame_items due to RLS, using local seeds:', seedWofErr.message);
           setWallOfFrameItems(INITIAL_WALL_OF_FRAME_ITEMS);
           saveToStorage('wallOfFrameItems', INITIAL_WALL_OF_FRAME_ITEMS);
         }
@@ -733,8 +733,9 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           saveToStorage('match_performances', fallback);
         }
 
-      } catch (err) {
-        console.error('Failed to initialize/fetch data from Supabase, falling back to local storage', err);
+      } catch (err: any) {
+        console.error('Failed to initialize/fetch data from Supabase, falling back to local storage', err?.message || err, err?.details || '', JSON.stringify(err));
+
         
         // Fallback to local storage or local seeds
         const getStoredOrSeed = <T,>(key: string, seed: T): T => {
